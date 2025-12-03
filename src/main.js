@@ -40,16 +40,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     const requiredParams = {
       pdf: urlParams.pdf,
       formation: urlParams.formation,
+      certId: urlParams.certId,
     };
     
     const missingParams = Object.keys(requiredParams).filter(
       key => !requiredParams[key]
     );
     
+    // Vérifier que appConfig a été chargé correctement (org valide)
+    if (!appConfig) {
+      hideLoader();
+      displaySimpleErrorPage();
+      return;
+    }
+    
     // Afficher un message d'erreur si des paramètres manquent
     if (missingParams.length > 0) {
       hideLoader();
-      displayErrorMessage(missingParams);
+      displaySimpleErrorPage();
       return;
     }
     
@@ -81,15 +89,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.error('Erreur lors de l\'initialisation:', error);
     hideLoader();
     
-    // Vérifier si c'est une erreur de configuration manquante
-    if (error.message && error.message.startsWith('CONFIG_NOT_FOUND:')) {
-      const parts = error.message.split(':');
-      const orgId = parts[1] || '';
-      const availableOrgs = parts[2] || '';
-      displayConfigNotFoundError(orgId, availableOrgs);
-    } else {
-      displayErrorMessage(['Erreur de chargement de la configuration']);
-    }
+    // Afficher la page d'erreur simple pour toutes les erreurs
+    displaySimpleErrorPage();
   }
 });
 
@@ -145,14 +146,9 @@ async function loadConfiguration() {
     if (error.message && error.message.startsWith('CONFIG_NOT_FOUND:')) {
       throw error;
     }
-    // Pour les autres erreurs (réseau, etc.), utiliser une config par défaut
-    console.error('Erreur lors du chargement de la configuration:', error);
-    appConfig = {
-      organizationName: 'Collège des administrateurs de sociétés',
-      logo: 'assets/logo_cas.svg',
-      favicon: 'assets/logo_cas.svg'
-    };
-    applyConfiguration(appConfig);
+    // Pour les autres erreurs (réseau, etc.), lancer une erreur générique
+    // pour afficher la page d'erreur simple
+    throw new Error('CONFIG_NOT_FOUND::');
   }
 }
 
@@ -260,41 +256,42 @@ function removeHeaderLink() {
 }
 
 /**
+ * Affiche une page d'erreur simple (fond gris, message au centre, pas de header)
+ * Utilisée quand des paramètres manquent ou que l'organisation est invalide
+ */
+function displaySimpleErrorPage() {
+  // Masquer tous les éléments existants
+  const header = document.querySelector('header');
+  const main = document.querySelector('main');
+  const footer = document.querySelector('footer');
+  const loader = document.getElementById('loader');
+  
+  if (header) header.style.display = 'none';
+  if (main) main.style.display = 'none';
+  if (footer) footer.style.display = 'none';
+  if (loader) loader.style.display = 'none';
+  
+  // Changer le fond du body en gris
+  document.body.style.backgroundColor = '#808080';
+  document.body.style.margin = '0';
+  document.body.style.padding = '0';
+  
+  // Créer et afficher le message d'erreur
+  const errorPage = document.createElement('div');
+  errorPage.className = 'error-page-simple';
+  errorPage.innerHTML = '<div class="error-page-simple-message">Cette page n\'existe pas</div>';
+  
+  document.body.appendChild(errorPage);
+}
+
+/**
  * Affiche un message d'erreur si des paramètres sont manquants
  * 
  * @param {string[]} missingParams - Liste des paramètres manquants
  */
 function displayErrorMessage(missingParams) {
-  const errorMessage = document.getElementById('error-message');
-  
-  // Masquer le title-banner sur les pages d'erreur
-  const titleBanner = document.querySelector('.title-banner');
-  if (titleBanner) {
-    titleBanner.classList.add('hidden');
-  }
-  
-  // Retirer le lien du header sur les pages d'erreur
-  removeHeaderLink();
-  
-  // Masquer le logo dans le header car il y a une erreur
-  const headerLogo = document.getElementById('header-logo');
-  if (headerLogo) {
-    headerLogo.classList.add('hidden');
-  }
-  
-  // Masquer le favicon car il y a une erreur
-  hideFavicon();
-  
-  const exampleUrl = 'http://localhost:5174/?pdf=https%3A%2F%2Fpdfobject.com%2Fpdf%2Fsample.pdf&prenom=Alexandre&mois=12&annee=2025&formation=Certification%20en%20gouvernance%20d%27entreprise&certId=ASC-2024-00123';
-  
-  errorMessage.innerHTML = `
-    <p><strong>Des paramètres obligatoires sont manquants :</strong> ${missingParams.join(', ')}</p>
-    <p>Veuillez vérifier l'URL et réessayer.</p>
-    <p><strong>Exemple d'URL valide :</strong></p>
-    <code>${exampleUrl}</code>
-  `;
-  
-  errorMessage.classList.remove('hidden');
+  // Utiliser la page d'erreur simple au lieu du message détaillé
+  displaySimpleErrorPage();
 }
 
 /**
@@ -304,52 +301,8 @@ function displayErrorMessage(missingParams) {
  * @param {string} availableOrgs - Liste des organisations disponibles (séparées par des virgules)
  */
 function displayConfigNotFoundError(orgId, availableOrgs) {
-  const errorMessage = document.getElementById('error-message');
-  
-  // Masquer le title-banner sur les pages d'erreur
-  const titleBanner = document.querySelector('.title-banner');
-  if (titleBanner) {
-    titleBanner.classList.add('hidden');
-  }
-  
-  // Retirer le lien du header sur les pages d'erreur
-  removeHeaderLink();
-  
-  // Masquer le logo dans le header car la configuration est introuvable
-  const headerLogo = document.getElementById('header-logo');
-  if (headerLogo) {
-    headerLogo.classList.add('hidden');
-  }
-  
-  // Masquer le favicon car la configuration est introuvable
-  hideFavicon();
-  
-  const orgList = availableOrgs ? availableOrgs.split(', ').map(org => `"${org}"`).join(', ') : 'aucune';
-  
-  // Message différent selon si le paramètre est manquant ou incorrect
-  let errorContent;
-  if (!orgId || orgId.trim() === '') {
-    errorContent = `
-      <p><strong>Paramètre manquant</strong></p>
-      <p>Le paramètre <code>org</code> est obligatoire dans l'URL.</p>
-      <p><strong>Organisations disponibles :</strong> ${orgList}</p>
-      <p>Veuillez ajouter le paramètre <code>org</code> à votre URL.</p>
-      <p><strong>Exemple d'URL valide :</strong></p>
-      <code>?org=cas&pdf=...&formation=...&orgId=...</code>
-    `;
-  } else {
-    errorContent = `
-      <p><strong>Configuration introuvable</strong></p>
-      <p>L'organisation "<strong>${orgId}</strong>" n'existe pas dans le fichier de configuration.</p>
-      <p><strong>Organisations disponibles :</strong> ${orgList}</p>
-      <p>Veuillez vérifier le paramètre <code>org</code> dans l'URL ou ajouter cette organisation au fichier <code>config.json</code>.</p>
-      <p><strong>Exemple d'URL valide :</strong></p>
-      <code>?org=cas&pdf=...&formation=...&orgId=...</code>
-    `;
-  }
-  
-  errorMessage.innerHTML = errorContent;
-  errorMessage.classList.remove('hidden');
+  // Utiliser la page d'erreur simple au lieu du message détaillé
+  displaySimpleErrorPage();
 }
 
 /**
