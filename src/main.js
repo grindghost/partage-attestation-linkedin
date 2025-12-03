@@ -578,6 +578,8 @@ function restoreCompletionState(urlParams) {
         if (timeElapsed > twoMinutesInMs) {
           const stepsElement = document.querySelector('.steps');
           const titleBanner = document.querySelector('.title-banner');
+          const footer = document.querySelector('footer');
+          const headerTitle = document.querySelector('.header-title');
           
           if (stepsElement) {
             stepsElement.classList.add('hidden');
@@ -585,6 +587,19 @@ function restoreCompletionState(urlParams) {
           
           if (titleBanner) {
             titleBanner.classList.add('hidden');
+          }
+          
+          // Masquer la phrase du footer
+          if (footer) {
+            const footerText = footer.querySelector('p');
+            if (footerText) {
+              footerText.classList.add('hidden');
+            }
+          }
+          
+          // Changer le titre du header pour "Votre diplôme"
+          if (headerTitle) {
+            headerTitle.textContent = 'Votre attestation';
           }
         }
       }
