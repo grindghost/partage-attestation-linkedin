@@ -106,7 +106,7 @@ async function loadConfiguration() {
   if (!orgId || orgId.trim() === '') {
     // Charger la config pour obtenir la liste des organisations disponibles
     try {
-      const response = await fetch('/src/config.json');
+      const response = await fetch('/config.json');
       if (response.ok) {
         const configData = await response.json();
         const availableOrgs = Object.keys(configData).join(', ');
@@ -123,7 +123,7 @@ async function loadConfiguration() {
   }
   
   try {
-    const response = await fetch('/src/config.json');
+    const response = await fetch('/config.json');
     if (!response.ok) {
       throw new Error(`Erreur de chargement de la configuration: ${response.status}`);
     }
@@ -165,13 +165,13 @@ function applyConfiguration(config) {
   // Mettre à jour le favicon
   const favicon = document.getElementById('favicon');
   if (config.favicon && favicon) {
-    favicon.href = `/src/${config.favicon}`;
+    favicon.href = `/${config.favicon}`;
   }
   
   // Mettre à jour le logo dans le header
   const headerLogo = document.getElementById('header-logo');
   if (config.logo && headerLogo) {
-    headerLogo.src = `/src/${config.logo}`;
+    headerLogo.src = `/${config.logo}`;
   }
   
   
