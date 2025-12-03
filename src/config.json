@@ -2,7 +2,8 @@
   "cas": {
     "organizationName": "Collège des administrateurs de sociétés",
     "logo": "assets/logo_cas.svg",
-    "favicon": "assets/logo_cas.svg"
+    "favicon": "assets/logo_cas.svg",
+    "websiteUrl": "https://www.cas.ulaval.ca/"
   }
 }
 

@@ -174,6 +174,11 @@ function applyConfiguration(config) {
     headerLogo.src = `/${config.logo}`;
   }
   
+  // Mettre à jour le lien du header avec l'URL du site de l'organisation
+  const headerLink = document.getElementById('header-link');
+  if (config.websiteUrl && headerLink) {
+    headerLink.href = config.websiteUrl;
+  }
   
   // Mettre à jour le titre de la page
   const pageTitle = document.getElementById('page-title');
@@ -233,6 +238,28 @@ function hideFavicon() {
 }
 
 /**
+ * Retire le lien du header en transformant le <a> en <div>
+ * Utilisé sur les pages d'erreur pour désactiver le lien
+ */
+function removeHeaderLink() {
+  const headerLink = document.getElementById('header-link');
+  if (headerLink && headerLink.tagName === 'A') {
+    // Créer un div avec les mêmes classes et contenu
+    const div = document.createElement('div');
+    div.className = headerLink.className;
+    div.id = headerLink.id;
+    
+    // Copier tous les enfants
+    while (headerLink.firstChild) {
+      div.appendChild(headerLink.firstChild);
+    }
+    
+    // Remplacer le lien par le div
+    headerLink.parentNode.replaceChild(div, headerLink);
+  }
+}
+
+/**
  * Affiche un message d'erreur si des paramètres sont manquants
  * 
  * @param {string[]} missingParams - Liste des paramètres manquants
@@ -245,6 +272,9 @@ function displayErrorMessage(missingParams) {
   if (titleBanner) {
     titleBanner.classList.add('hidden');
   }
+  
+  // Retirer le lien du header sur les pages d'erreur
+  removeHeaderLink();
   
   // Masquer le logo dans le header car il y a une erreur
   const headerLogo = document.getElementById('header-logo');
@@ -281,6 +311,9 @@ function displayConfigNotFoundError(orgId, availableOrgs) {
   if (titleBanner) {
     titleBanner.classList.add('hidden');
   }
+  
+  // Retirer le lien du header sur les pages d'erreur
+  removeHeaderLink();
   
   // Masquer le logo dans le header car la configuration est introuvable
   const headerLogo = document.getElementById('header-logo');
