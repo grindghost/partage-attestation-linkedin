@@ -79,7 +79,8 @@ export function buildLinkedInShareUrl({ message, pdfUrl }) {
   // Ajouter l'URL du PDF au message si fournie
   let finalMessage = message;
   if (pdfUrl) {
-    finalMessage = `${message}\n\n${pdfUrl}`;
+    // finalMessage = `${message}\n\n${pdfUrl}\n\nhttps://raw.githubusercontent.com/grindghost/partage-attestation-linkedin/refs/heads/main/src/assets/certificat.png`;
+    finalMessage = `${message}\n\nhttps://raw.githubusercontent.com/grindghost/partage-attestation-linkedin/refs/heads/main/src/assets/certificat.png`;
   }
   
   // Encoder le texte pour l'URL
