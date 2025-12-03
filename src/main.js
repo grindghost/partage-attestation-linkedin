@@ -271,6 +271,9 @@ function displaySimpleErrorPage() {
   if (footer) footer.style.display = 'none';
   if (loader) loader.style.display = 'none';
   
+  // Masquer le favicon dans l'onglet
+  hideFavicon();
+  
   // Changer le fond du body en gris
   document.body.style.backgroundColor = '#808080';
   document.body.style.margin = '0';

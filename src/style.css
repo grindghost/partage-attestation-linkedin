@@ -477,6 +477,14 @@ footer p {
   color: #666;
 }
 
+.footer-logo {
+  display: block;
+  margin: 16px auto 0;
+  height: 70px;
+  width: auto;
+  opacity: 0.7;
+}
+
 /* Message d'erreur */
 .error-message {
   background-color: #ffebee;
